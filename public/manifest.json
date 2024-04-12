@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "ClassLists Getter",
+  "description": "Base Level Extension",
+  "version": "1.0",
+  "content_scripts": [
+    {
+      "js": ["index.js"],
+      "matches": ["https://fap.fpt.edu.vn/*"]
+    }
+  ],
+  "action": {
+    "default_icon": "favicon.ico",
+    "default_popup": "index.html"
+  }
+}
