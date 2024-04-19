@@ -1,38 +1,14 @@
 import { useEffect, useState } from "react";
 import * as cheerio from "cheerio";
 import { classData, slots, weekdays } from "./constants/classData";
+import { formGetter, secondFormGetter } from "./constants/formData";
 
 export default function App() {
-  const __EVENTTARGET = document
-    .getElementById("__EVENTTARGET")
-    ?.getAttribute("value");
-  const __EVENTARGUMENT = document
-    .getElementById("__EVENTARGUMENT")
-    ?.getAttribute("value");
-  const __LASTFOCUS = document
-    .getElementById("__LASTFOCUS")
-    ?.getAttribute("value");
-  const __VIEWSTATEGENERATOR = document
-    .getElementById("__VIEWSTATEGENERATOR")
-    ?.getAttribute("value");
-  const __VIEWSTATE = document
-    .getElementById("__VIEWSTATE")
-    ?.getAttribute("value");
-  const __EVENTVALIDATION = document
-    .getElementById("__EVENTVALIDATION")
-    ?.getAttribute("value");
   const url = window.location.href;
   const id = url.slice(url.indexOf("=") + 1);
-
-  const formData = new FormData();
-  formData.append("__EVENTTARGET", "ctl00$mainContent$dllCourse");
-  formData.append("__EVENTARGUMENT", __EVENTARGUMENT || "");
-  formData.append("__LASTFOCUS", __LASTFOCUS || "");
-  formData.append("__EVENTVALIDATION", __EVENTVALIDATION || "");
-  formData.append("__VIEWSTATE", __VIEWSTATE || "");
-  formData.append("__VIEWSTATEGENERATOR", __VIEWSTATEGENERATOR || "");
-  formData.append("ctl00$mainContent$dllCourse", id + "");
-  formData.append("ctl00$mainContent$hdException", "");
+  const baseUrl = window.location.origin + window.location.pathname;
+  const formData = formGetter(id);
+  let secondId = "";
   const [timeTable, setTimeTable] =
     useState<Map<string, Map<string, string[]>>>(classData);
   const [total, setTotal] = useState(0);
@@ -43,7 +19,6 @@ export default function App() {
         document.querySelector("#ctl00_mainContent_dllCourse")?.innerHTML || "";
       const $ = cheerio.load(data);
       const classes = new Map<string, string>();
-      let secondId;
       classes.set(
         id,
         document.getElementById("ctl00_mainContent_lblOldGroup")?.innerText ||
@@ -51,26 +26,34 @@ export default function App() {
       );
       $("option").each((_i, e) => {
         const value = $(e).attr("value");
-        secondId = value;
         if (value) {
+          secondId = value;
           classes.set(value, $(e).text());
         }
       });
-      console.log(classes);
       setTotal(classes.size);
+      const secondFormData = await secondFormGetter(secondId, id);
 
       for (const [key, _item] of classes) {
         formData.set("ctl00$mainContent$dllCourse", key);
+        let nextClass;
         if (key == id) {
-          // formData.set("ctl00$mainContent$dllCourse", secondId);
+          nextClass = await (
+            await fetch(baseUrl + `?id=${secondId}`, {
+              method: "POST",
+              headers: {},
+              body: secondFormData,
+            })
+          ).text();
+        } else {
+          nextClass = await (
+            await fetch(window.location.href, {
+              method: "POST",
+              headers: {},
+              body: formData,
+            })
+          ).text();
         }
-        const nextClass = await (
-          await fetch(window.location.href, {
-            method: "POST",
-            headers: {},
-            body: formData,
-          })
-        ).text();
         const $$ = cheerio.load(nextClass);
         const classInfo = $$("#ctl00_mainContent_lblNewSlot").text();
         const className = $$(
