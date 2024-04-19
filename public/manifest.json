@@ -6,7 +6,8 @@
   "content_scripts": [
     {
       "js": ["index.js"],
-      "matches": ["https://fap.fpt.edu.vn/*"]
+      "css": ["index.css"],
+      "matches": ["https://fap.fpt.edu.vn/FrontOffice/MoveSubject.aspx*"]
     }
   ],
   "action": {
