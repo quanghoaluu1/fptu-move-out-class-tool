@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import * as cheerio from "cheerio";
 import { classData, slots, weekdays } from "./constants/classData";
 import { formGetter, secondFormGetter } from "./constants/formData";
+import { textToColor } from "./constants/colorGenerator";
 
 export default function App() {
   const url = window.location.href;
@@ -59,42 +60,72 @@ export default function App() {
         const className = $$(
           "#ctl00_mainContent_dllCourse > option:selected"
         ).text();
-        const weekday = classInfo.slice(0, 3);
-        const slot = classInfo.slice(11, 12);
-        const updatedClassData = new Map(classData); // Create a new map object
-        const slotMap =
-          updatedClassData.get(weekday) || new Map<string, string[]>();
-        const classNames = slotMap.get(slot) || [];
-        classNames.push(className);
-        slotMap.set(slot, classNames);
-        updatedClassData.set(weekday, slotMap);
+        const classDetail = classInfo.split(",");
+        for (const detail of classDetail) {
+          const weekday = detail.slice(0, 3);
+          const slot = detail.slice(11, 12);
+          const lecture = detail.slice(detail.indexOf("Lecture:") + 9);
+
+          if (weekdays.indexOf(weekday) >= 0) {
+            const updatedClassData = new Map(classData); // Create a new map object
+            const slotMap =
+              updatedClassData.get(weekday) || new Map<string, string[]>();
+            const classNames = slotMap.get(slot) || [];
+            classNames.push(
+              className + ` (${lecture.length > 0 ? lecture : "N/A"})`
+            );
+            slotMap.set(slot, classNames);
+            updatedClassData.set(weekday, slotMap);
+            setTimeTable(updatedClassData);
+          }
+        }
         setGotten((prev) => prev + 1);
-        setTimeTable(updatedClassData);
       }
     })();
   }, []);
 
   return (
-    <div>
-      <progress value={gotten} max={total}>
-        {gotten}%
-      </progress>
-      <table>
+    <div className="w-full">
+      <div>
+        {gotten < total && (
+          <progress value={gotten} max={total} className="my-4" />
+        )}
+      </div>
+      <table className="w-full">
         <thead>
-          <tr>
-            <td></td>
+          <tr className="">
+            <td className="border"></td>
             {weekdays.map((day) => (
-              <td className="text-red-500 font-bold border">{day}</td>
+              <td className="text-red-500 font-bold border p-2 w-[200px] text-center">
+                {day}
+              </td>
             ))}
           </tr>
         </thead>
         <tbody>
           {slots.map((slot: any) => (
-            <tr>
-              <td className="text-red-500 font-bold border">Slot {slot}</td>
+            <tr className="">
+              <td className="text-red-500 font-bold border w-[80px] text-center py-2 m-auto">
+                Slot {slot}
+              </td>
               {weekdays.map((day) => (
-                <td className="border">
-                  {timeTable?.get(day)?.get(slot)?.join(", ")}
+                <td className="border col-span-1 p-2 w-[200px]">
+                  {timeTable
+                    ?.get(day)
+                    ?.get(slot)
+                    ?.map((item: string) => {
+                      return (
+                        <div
+                          className="border-[0.5px] border-black font-bold p-2 rounded-md mb-2 bg-opacity-10"
+                          style={{
+                            backgroundColor: textToColor(item),
+                            // color: "black",
+                          }}
+                        >
+                          {item}
+                        </div>
+                      );
+                    })}
                 </td>
               ))}
             </tr>

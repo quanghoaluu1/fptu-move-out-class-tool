@@ -3,9 +3,9 @@ import * as cheerio from "cheerio";
 const url = "https://fap.fpt.edu.vn/FrontOffice/MoveSubject.aspx";
 
 export const formGetter = (id: string) => {
-  const __EVENTTARGET = document
-    .getElementById("__EVENTTARGET")
-    ?.getAttribute("value");
+  //   const __EVENTTARGET = document
+  //     .getElementById("__EVENTTARGET")
+  //     ?.getAttribute("value");
   const __EVENTARGUMENT = document
     .getElementById("__EVENTARGUMENT")
     ?.getAttribute("value");
@@ -40,8 +40,7 @@ export const secondFormGetter = async (secondId: string, id: string) => {
     })
   ).text();
   const $ = cheerio.load(page);
-  console.log($.html());
-  const __EVENTTARGET = $("#__EVENTTARGET").attr("value");
+  //   const __EVENTTARGET = $("#__EVENTTARGET").attr("value");
   const __EVENTARGUMENT = $("#__EVENTARGUMENT").attr("value");
   const __LASTFOCUS = $("#__LASTFOCUS").attr("value");
   const __VIEWSTATEGENERATOR = $("#__VIEWSTATEGENERATOR").attr("value");
@@ -56,10 +55,5 @@ export const secondFormGetter = async (secondId: string, id: string) => {
   formData.append("__VIEWSTATEGENERATOR", __VIEWSTATEGENERATOR || "");
   formData.append("ctl00$mainContent$dllCourse", id);
   formData.append("ctl00$mainContent$hdException", "");
-  console.log({
-    __EVENTTARGET,
-    __EVENTARGUMENT,
-    __LASTFOCUS,
-  });
   return formData;
 };
