@@ -7,7 +7,7 @@
     {
       "js": ["index.js"],
       "css": ["index.css"],
-      "matches": ["https://fap.fpt.edu.vn/FrontOffice/MoveSubject.aspx*"]
+      "matches": ["https://fap.fpt.edu.vn/*"]
     }
   ],
   "action": {
