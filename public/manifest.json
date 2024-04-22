@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "ClassLists Getter",
+  "name": "FPT ClassLists Getter",
   "description": "Base Level Extension",
   "version": "1.0",
   "content_scripts": [
@@ -11,7 +11,12 @@
     }
   ],
   "action": {
-    "default_icon": "favicon.ico",
-    "default_popup": "index.html"
+    "default_icon": "image3.png"
+  },
+  "icons": {
+    "16": "image3.png",
+    "32": "image3.png",
+    "48": "image3.png",
+    "128": "image3.png"
   }
 }
