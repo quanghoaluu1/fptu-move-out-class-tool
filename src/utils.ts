@@ -1,3 +1,5 @@
+import * as cheerio from "cheerio";
+
 export function mapToObject(map: Map<string, Map<string, string[]>>) {
   const obj: any = {};
   map.forEach((value, key: any) => {
@@ -38,4 +40,25 @@ export const textToColor = (text: string): string => {
     color += ("00" + value.toString(16)).slice(-2);
   }
   return color;
+};
+
+export const getClassKey = (): any => {
+  const id = window.location.href.slice(window.location.href.indexOf("=") + 1);
+
+  const data: string =
+    document.querySelector("#ctl00_mainContent_dllCourse")?.innerHTML || "";
+  const $ = cheerio.load(data);
+  const classes = new Map<string, string>();
+  classes.set(
+    document.getElementById("ctl00_mainContent_lblOldGroup")?.innerText || "",
+    id
+  );
+  $("option").each((_i, e) => {
+    const value = $(e).attr("value");
+    if (value) {
+      classes.set($(e).text(), value);
+    }
+  });
+
+  return classes;
 };

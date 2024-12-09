@@ -5,19 +5,46 @@
 progress {
   border-radius: 8px;
   width: 80%;
-  height: 12px;
-  /* margin-left: -11.5%; */
+  height: 20px;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
 }
+
 progress::-webkit-progress-bar {
   background-color: rgb(255, 255, 255);
   border-radius: 7px;
 }
+
 progress::-webkit-progress-value {
   background-color: rgb(21, 255, 0);
   border-radius: 7px;
-  /* box-shadow: 1px 1px 5px 3px rgba(255, 0, 0, 0.8); */
+  animation: skeletonLoading 2s linear infinite;
 }
+
 progress::-moz-progress-bar {
-  /* style rules */
+  background-color: rgb(255, 255, 255);
+  border-radius: 7px;
+}
+
+@keyframes skeletonLoading {
+  0% {
+    background-color: rgb(21, 255, 0);
+    opacity: 0.5;
+  }
+  100% {
+    background-color: rgb(226, 120, 96);
+    opacity: 1;
+  }
+}
+
+.rotate {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

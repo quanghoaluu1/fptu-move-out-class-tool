@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "FPT ClassLists Getter",
-  "description": "Base Level Extension",
-  "version": "1.0",
+  "name": "FPTU Move Out Class Tool",
+  "description": "Hỗ trợ sinh viên FPTU xem lịch, chuyển lớp nhanh",
+  "version": "1.1",
   "content_scripts": [
     {
       "js": ["index.js"],
@@ -11,12 +11,12 @@
     }
   ],
   "action": {
-    "default_icon": "image3.png"
+    "default_icon": "image.png"
   },
   "icons": {
-    "16": "image3.png",
-    "32": "image3.png",
-    "48": "image3.png",
-    "128": "image3.png"
+    "16": "image.png",
+    "32": "image.png",
+    "48": "image.png",
+    "128": "image.png"
   }
 }
