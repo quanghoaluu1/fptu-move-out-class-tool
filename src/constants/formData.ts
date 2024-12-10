@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 
 const url = "https://fap.fpt.edu.vn/FrontOffice/MoveSubject.aspx";
 
-export const formGetter = (id: string) => {
+export const formGetter = (id: string = "") => {
   //   const __EVENTTARGET = document
   //     .getElementById("__EVENTTARGET")
   //     ?.getAttribute("value");
