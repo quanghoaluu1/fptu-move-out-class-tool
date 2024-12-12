@@ -12,6 +12,7 @@ import {
   getCurrentStatus,
 } from "./utils";
 
+let controller = new AbortController();
 export default function App() {
   // Setup metadata
   const url = window.location.href;
@@ -21,8 +22,6 @@ export default function App() {
   let secondId = "";
   let subject =
     document.getElementById("ctl00_mainContent_lblSubject")?.textContent || "";
-  let controller = new AbortController();
-  const signal = controller.signal;
 
   // Get cached data
   let cached = localStorage.getItem(subject);
@@ -51,13 +50,14 @@ export default function App() {
       ...prev,
       fetching: true,
     }));
-    const data = await getCurrentStatus(signal);
-    setStudentCount(data);
-    setIsLoading((prev: any) => ({
-      ...prev,
-      fetching: false,
-    }));
-    alert("Đã lấy xong sĩ số!");
+    getCurrentStatus(controller).then((res) => {
+      setStudentCount(res);
+      setIsLoading((prev: any) => ({
+        ...prev,
+        fetching: false,
+      }));
+      alert("Đã lấy xong sĩ số!");
+    });
   };
 
   useEffect(() => {
@@ -85,7 +85,7 @@ export default function App() {
         __EVENTVALIDATION: data.__EVENTVALIDATION,
         ctl00_mainContent_ddlCampuses: data.ctl00_mainContent_ddlCampuses,
       });
-      handleStudentCount();
+      handleToggleOldFeature();
     })();
   }, []);
 
@@ -205,7 +205,20 @@ export default function App() {
       });
     });
     setLecturerList(lecturerListTemp);
-    localStorage.setItem("expireAt", (Date.now() + 1000 * 60 * 60).toString());
+    localStorage.setItem(
+      "expireAt",
+      (Date.now() + 1000 * 60 * 60 * 24).toString()
+    );
+  };
+
+  const handleToggleOldFeature = () => {
+    document.getElementById("studentCount")?.classList.toggle("hidden");
+    document
+      .getElementById("ctl00_mainContent_divMoveSubject")
+      ?.classList.toggle("hidden");
+    document
+      .getElementById("ctl00_mainContent_divNewGroupInfo")
+      ?.classList.toggle("hidden");
   };
 
   return (
@@ -213,12 +226,22 @@ export default function App() {
       <div className="my-8">
         <div className="flex gap-6 items-center mb-3">
           {!isLoading.fetching && (
-            <span
-              onClick={refresh}
-              className="font-bold px-4 py-2 text-white text-3xl rounded-md bg-green-500 cursor-pointer flex gap-8"
-            >
-              Làm mới
-            </span>
+            <>
+              <span
+                onClick={refresh}
+                className="font-bold px-4 py-2 text-white text-3xl rounded-md bg-green-500 cursor-pointer flex gap-8 hover:bg-green-600"
+              >
+                Làm mới
+              </span>
+              <div
+                onClick={handleStudentCount}
+                className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-3xl rounded-md bg-green-500 cursor-pointer gap-8"
+                id="studentCount"
+                title="(Có thể sẽ khá lâu)"
+              >
+                <span>Lấy sĩ số</span>
+              </div>
+            </>
           )}
 
           {(isLoading.moving || isLoading.fetching) && (
@@ -357,7 +380,12 @@ export default function App() {
                               `Bạn có chắc muốn chuyển qua lớp ${item} không?`
                             );
                             if (userConfirmed) {
-                              controller.abort();
+                              // throw new Error("abort");
+                              if (controller) {
+                                controller.abort();
+                              }
+                              controller = new AbortController();
+
                               setIsLoading((prev: any) => ({
                                 ...prev,
                                 moving: true,
@@ -371,31 +399,32 @@ export default function App() {
                                 classId
                               );
                               formData.set("ctl00$mainContent$btSave", "Save");
-                              const res = await fetch(window.location.href, {
+                              fetch(window.location.href, {
                                 method: "POST",
                                 headers: {},
                                 body: formData,
+                                priority: "high",
                               })
                                 .then((res) => res.text())
                                 .then((text) => {
                                   const alertTextRegex = /alert\('([^']*)'\)/;
                                   const match = text.match(alertTextRegex);
-                                  return match?.[1];
+                                  const res = match?.[1];
+                                  if (res) {
+                                    alert(res);
+                                    if (res?.includes("đã được chấp nhận")) {
+                                      const url = new URL(window.location.href);
+                                      url.searchParams.set("id", classId);
+                                      window.location.href = url.toString();
+                                    }
+                                  } else {
+                                    alert("Bạn đã ở trong lớp này rồi");
+                                  }
+                                  setIsLoading((prev: any) => ({
+                                    ...prev,
+                                    moving: false,
+                                  }));
                                 });
-                              if (res) {
-                                alert(res);
-                                if (res?.includes("đã được chấp nhận")) {
-                                  const url = new URL(window.location.href);
-                                  url.searchParams.set("id", classId);
-                                  window.location.href = url.toString();
-                                }
-                              } else {
-                                alert("Bạn đã ở trong lớp này rồi");
-                              }
-                              setIsLoading((prev: any) => ({
-                                ...prev,
-                                moving: false,
-                              }));
                             }
                           }}
                         >
@@ -435,7 +464,7 @@ export default function App() {
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </div>
-            <div>Danh sách lớp</div>
+            <div>Danh sách lớp hiện tại</div>
           </summary>
           <div className="h-[500px] overflow-y-scroll" id="class-list"></div>
         </details>
@@ -465,6 +494,20 @@ export default function App() {
             // style="border: 0px none; margin-left: -36px; height: 812px; margin-top: -486px; width: 650px;">
           ></iframe>
         </details>
+      </div>
+      <div className="flex items-center gap-2 mt-4">
+        <input
+          id="showOldFeature"
+          type="checkbox"
+          defaultChecked={false}
+          onChange={handleToggleOldFeature}
+        />
+        <label
+          className="text-xl mb-0 mt-2 leading-none"
+          htmlFor="showOldFeature"
+        >
+          Hiện chức năng cũ của FAP
+        </label>
       </div>
     </div>
   );

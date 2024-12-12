@@ -135,10 +135,10 @@ export const getCurrentSubjects = async () => {
   };
 };
 
-export const getCurrentStatus = async (signal: any) => {
-  const response = await fetch("https://fap.fpt.edu.vn/Course/Courses.aspx", {
-    signal,
-  }).then((res) => res.text());
+export const getCurrentStatus = async (controller: AbortController) => {
+  const response = await fetch(
+    "https://fap.fpt.edu.vn/Course/Courses.aspx"
+  ).then((res) => res.text());
   const $ = cheerio.load(response);
   const classCode =
     (
@@ -157,7 +157,12 @@ export const getCurrentStatus = async (signal: any) => {
     (deptData as { [key: string]: number })[deptNum]
   }`;
   console.log(link);
-  const res = await fetch(link, { signal }).then((res) => res.text());
+  const res = await fetch(link, {
+    signal: controller.signal,
+    priority: "low",
+    keepalive: false,
+  }).then((res) => res.text());
+
   const $$$ = cheerio.load(res);
 
   const subject = $$$("#id tr")
