@@ -44,6 +44,7 @@ export default function App() {
   const [filter, setFilter] = useState<any>({
     lecturer: "",
   });
+  const [isFull, setIsFull] = useState(false);
 
   const handleStudentCount = async () => {
     setIsLoading((prev: any) => ({
@@ -212,7 +213,7 @@ export default function App() {
   };
 
   const handleToggleOldFeature = () => {
-    document.getElementById("studentCount")?.classList.toggle("hidden");
+    // document.getElementById("studentCount")?.classList.toggle("hidden");
     document
       .getElementById("ctl00_mainContent_divMoveSubject")
       ?.classList.toggle("hidden");
@@ -237,9 +238,11 @@ export default function App() {
                 onClick={handleStudentCount}
                 className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-3xl rounded-md bg-green-500 cursor-pointer gap-8"
                 id="studentCount"
-                title="(Có thể sẽ khá lâu)"
+                title="(Có thể sẽ hơi lag)"
               >
-                <span>Lấy sĩ số</span>
+                <span>
+                  Lấy sĩ số <span className="text-xl">(có thể sẽ hơi lag)</span>
+                </span>
               </div>
             </>
           )}
@@ -269,56 +272,67 @@ export default function App() {
             </>
           )}
         </div>
-        <select
-          name=""
-          id=""
-          defaultValue={""}
-          className="text-2xl border-2 rounded-md p-2 mt-2"
-          onChange={async (e) => {
-            setIsLoading((prev: any) => ({
-              ...prev,
-              moving: true,
-            }));
-            if (e.target.value) {
-              send(e.target.value, changeSubjectForm);
-            }
-          }}
-        >
-          <option value="" disabled>
-            Tìm theo môn học
-          </option>
-          {moveList?.map((move: any) => (
-            <option
-              selected={subject.includes(move.subject)}
-              value={move?.moveId.replaceAll("_", "$")}
-            >{`${move?.subject} - ${move?.classId} - ${
-              move?.lecturer ?? "N/A"
-            }`}</option>
-          ))}
-        </select>
-        <select
-          name=""
-          id=""
-          className="ml-4 text-2xl border-2 rounded-md p-2 mt-2"
-          onChange={(e) =>
-            setFilter((prev: any) => ({
-              ...prev,
-              lecturer: e.target.value,
-            }))
-          }
-          defaultValue={""}
-        >
-          <option value="" disabled>
-            Tìm theo giáo viên
-          </option>
-          <option value="">Tất cả</option>
-          {lecturerList?.map((lecture: any) => (
-            <option value={lecture}>{lecture}</option>
-          ))}
-        </select>
+        <div className="flex gap-6 items-center mb-3">
+          <div>
+            <select
+              name=""
+              id=""
+              defaultValue={""}
+              className="text-2xl border-2 rounded-md p-2 mt-2"
+              onChange={async (e) => {
+                setIsLoading((prev: any) => ({
+                  ...prev,
+                  moving: true,
+                }));
+                if (e.target.value) {
+                  send(e.target.value, changeSubjectForm);
+                }
+              }}
+            >
+              <option value="" disabled>
+                Tìm theo môn học
+              </option>
+              {moveList?.map((move: any) => (
+                <option
+                  selected={subject.includes(move.subject)}
+                  value={move?.moveId.replaceAll("_", "$")}
+                >{`${move?.subject} - ${move?.classId} - ${
+                  move?.lecturer ?? "N/A"
+                }`}</option>
+              ))}
+            </select>
+            <select
+              name=""
+              id=""
+              className="ml-4 text-2xl border-2 rounded-md p-2 mt-2"
+              onChange={(e) =>
+                setFilter((prev: any) => ({
+                  ...prev,
+                  lecturer: e.target.value,
+                }))
+              }
+              defaultValue={""}
+            >
+              <option value="" disabled>
+                Tìm theo giảng viên
+              </option>
+              <option value="">Tất cả</option>
+              {lecturerList?.map((lecture: any) => (
+                <option value={lecture}>{lecture}</option>
+              ))}
+            </select>
+          </div>
+          <a
+            href="https://docs.google.com/spreadsheets/d/1CTlmTC4RgW4zk-A9VTkz4BGzjY2PMk5s/edit"
+            className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer gap-8"
+            target="_blank"
+          >
+            Xem review GV
+          </a>
+        </div>
         {gotten < total && (
           <span className="my-4 flex gap-4 justify-between items-center w-full">
-            <span className="text-2xl rotate">
+            <span className="text-2xl">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width={24}
@@ -329,7 +343,7 @@ export default function App() {
                 strokeWidth={2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="lucide lucide-rotate-cw"
+                className="lucide lucide-rotate-cw rotate"
               >
                 <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
                 <path d="M21 3v5h-5" />
@@ -339,6 +353,19 @@ export default function App() {
           </span>
         )}
       </div>
+      {isFull && (
+        <div className="text-3xl mb-4">
+          Nếu bạn có nhu cầu cần chuyển lớp đã full, liên hệ{" "}
+          <a
+            href="https://www.facebook.com/profile.php?id=100074006097767"
+            target="_blank"
+            rel="noreferrer"
+          >
+            mình
+          </a>{" "}
+          để được hỗ trợ nhé!
+        </div>
+      )}
       <table className="w-full">
         <thead>
           <tr className="">
@@ -367,13 +394,14 @@ export default function App() {
                     ?.map((item: string) => {
                       return (
                         <div
-                          className={`border-[0.5px] border-black font-bold p-2 rounded-md mb-2 bg-opacity-10 cursor-pointer hover:scale-[1.03] duration-200 ${
+                          className={`border-[0.5px] border-black font-bold p-2 rounded-md mb-2 bg-opacity-5 cursor-pointer hover:scale-[1.03] duration-200 ${
                             item.includes(filter.lecturer) ? "" : "hidden"
                           }`}
                           style={{
                             backgroundColor: textToColor(item),
                             // color: "black",
                           }}
+                          title={getClassKey().get(item.split(" ")[0])}
                           onClick={async () => {
                             console.log(item);
                             const userConfirmed = window.confirm(
@@ -409,13 +437,29 @@ export default function App() {
                                 .then((text) => {
                                   const alertTextRegex = /alert\('([^']*)'\)/;
                                   const match = text.match(alertTextRegex);
-                                  const res = match?.[1];
+                                  let res = match?.[1]?.replaceAll(
+                                    "</br>",
+                                    "\n"
+                                  );
                                   if (res) {
                                     alert(res);
+                                    if (
+                                      res?.includes(
+                                        "Bạn không thể chuyển tới lớp này, bởi vì"
+                                      )
+                                    ) {
+                                      setIsFull(true);
+                                    }
                                     if (res?.includes("đã được chấp nhận")) {
                                       const url = new URL(window.location.href);
                                       url.searchParams.set("id", classId);
                                       window.location.href = url.toString();
+                                    } else if (
+                                      res?.includes(
+                                        "Bạn không thể chuyển tới lớp này, bởi vì"
+                                      )
+                                    ) {
+                                      setIsFull(true);
                                     }
                                   } else {
                                     alert("Bạn đã ở trong lớp này rồi");
@@ -446,6 +490,7 @@ export default function App() {
           ))}
         </tbody>
       </table>
+
       <div>
         <details className="p-4 [&_svg]:open:-rotate-180 mt-4">
           <summary className="flex cursor-pointer list-none items-center gap-4 text-3xl">
@@ -464,7 +509,14 @@ export default function App() {
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </div>
-            <div>Danh sách lớp hiện tại</div>
+            <div>
+              Danh sách lớp hiện tại (
+              {
+                document.querySelector("#ctl00_mainContent_lblOldGroup")
+                  ?.textContent
+              }
+              )
+            </div>
           </summary>
           <div className="h-[500px] overflow-y-scroll" id="class-list"></div>
         </details>
