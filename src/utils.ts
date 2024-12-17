@@ -135,7 +135,7 @@ export const getCurrentSubjects = async () => {
   };
 };
 
-export const getCurrentStatus = async (controller: AbortController) => {
+export const getCurrentStatus = async () => {
   const response = await fetch(
     "https://fap.fpt.edu.vn/Course/Courses.aspx"
   ).then((res) => res.text());
@@ -150,15 +150,27 @@ export const getCurrentStatus = async (controller: AbortController) => {
   ).attr("href");
 
   currentLink = currentLink?.replace(/(.*?&[^&]+)=[^&]+$/, "$1");
-  let deptNum = Object.keys(deptData).filter((item) =>
+
+  let campusName = "";
+  const campus = $("#ctl00_lblCampusName").text().trim();
+  console.log(campus);
+  if (campus.includes("Hòa Lạc")) {
+    campusName = "hola";
+  } else {
+    campusName = "xavalo";
+  }
+
+  let deptNum = Object.keys((deptData as any)[campusName]).filter((item) =>
     item.includes(classCode.toLowerCase())
   )?.[0];
+
   const link = `https://fap.fpt.edu.vn/Course/Courses.aspx${currentLink}=${
-    (deptData as { [key: string]: number })[deptNum]
+    (deptData as { [key: string]: { [key: string]: number } })[campusName][
+      deptNum
+    ]
   }`;
   console.log(link);
   const res = await fetch(link, {
-    signal: controller.signal,
     priority: "low",
     keepalive: false,
   }).then((res) => res.text());
@@ -175,8 +187,19 @@ export const getCurrentStatus = async (controller: AbortController) => {
     )
     .first();
 
+  // const campus = $("#ctl00_lblCampusName").text().trim();
+  // console.log(campus);
+
   let result: any = {};
   subject.find('td:nth-child(2) a[href^="Groups.aspx"]').each((_, el) => {
+    const course = $(el).text().trim();
+    const number = ($(el)[0].nextSibling as any).nodeValue
+      .split("|")[1]
+      .trim()
+      .replace("-(", "");
+    result[course] = number;
+  });
+  subject.find('td:nth-child(3) a[href^="Groups.aspx"]').each((_, el) => {
     const course = $(el).text().trim();
     const number = ($(el)[0].nextSibling as any).nodeValue
       .split("|")[1]
@@ -199,3 +222,19 @@ export const getLecturerList = async () => {
     .get();
   return lecturerList;
 };
+
+// export function getCookie(cookieName: string) {
+//   const name = cookieName + "=";
+//   const decodedCookie = decodeURIComponent(document.cookie);
+//   const ca = decodedCookie.split(";");
+//   for (let i = 0; i < ca.length; i++) {
+//     let c = ca[i];
+//     while (c.charAt(0) == " ") {
+//       c = c.substring(1);
+//     }
+//     if (c.indexOf(name) == 0) {
+//       return c.substring(name.length, c.length);
+//     }
+//   }
+//   return "";
+// }

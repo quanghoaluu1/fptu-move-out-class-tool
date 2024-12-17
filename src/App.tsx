@@ -11,8 +11,8 @@ import {
   getCurrentSubjects,
   getCurrentStatus,
 } from "./utils";
+import MultiSelectDropdown from "./components/MultiSelect";
 
-let controller = new AbortController();
 export default function App() {
   // Setup metadata
   const url = window.location.href;
@@ -43,6 +43,10 @@ export default function App() {
   const [lecturerList, setLecturerList] = useState<any>([]);
   const [filter, setFilter] = useState<any>({
     lecturer: "",
+    classId: "",
+    studentCount: 100,
+    excludeSlots: [],
+    excludeWeekdays: [],
   });
   const [isFull, setIsFull] = useState(false);
 
@@ -51,11 +55,16 @@ export default function App() {
       ...prev,
       fetching: true,
     }));
-    getCurrentStatus(controller).then((res) => {
+    getCurrentStatus().then((res) => {
       setStudentCount(res);
       setIsLoading((prev: any) => ({
         ...prev,
         fetching: false,
+      }));
+      setFilter((prev: any) => ({
+        ...prev,
+        studentCount:
+          Math.max(...Object.values(res).map((value) => Number(value))) ?? 100,
       }));
       alert("Đã lấy xong sĩ số!");
     });
@@ -137,7 +146,7 @@ export default function App() {
     setTotal(classes.size);
 
     // Fetch classes's time table
-    console.time("Execution Time"); // Start timer
+    // console.time("Execution Time"); // Start timer
     const secondFormData = await secondFormGetter(secondId, id);
     for (const [key, _item] of classes) {
       formData.set("ctl00$mainContent$dllCourse", key);
@@ -188,7 +197,7 @@ export default function App() {
       setGotten((prev) => prev + 1);
     }
 
-    console.timeEnd("Execution Time");
+    // console.timeEnd("Execution Time");
     localStorage.setItem(subject, JSON.stringify(mapToObject(timeTable)));
     let lecturerListTemp: any = [];
     slots.forEach((slot: any) => {
@@ -222,21 +231,59 @@ export default function App() {
       ?.classList.toggle("hidden");
   };
 
+  const COUNTRIES = [
+    "Austria",
+    "Belgium",
+    "Croatia",
+    "Bulgaria",
+    "Cyprus",
+    "Czech Republic",
+    "Denmark",
+    "Estonia",
+    "Finland",
+    "France",
+    "Germany",
+    "Greece",
+    "Hungary",
+    "Ireland",
+    "Italy",
+    "Latvia",
+    "Lithuania",
+    "Luxembourg",
+    "Malta",
+    "Netherlands",
+    "Poland",
+    "Portugal",
+    "Romania",
+    "Slovakia",
+    "Slovenia",
+    "Spain",
+    "Sweden",
+    "Ukraine",
+  ];
+
   return (
     <div className="w-full">
       <div className="my-8">
         <div className="flex gap-6 items-center mb-3">
           {!isLoading.fetching && (
             <>
+              <a
+                href="https://docs.google.com/spreadsheets/d/1CTlmTC4RgW4zk-A9VTkz4BGzjY2PMk5s/edit"
+                className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer gap-8"
+                target="_blank"
+              >
+                Xem review GV
+              </a>
               <span
                 onClick={refresh}
-                className="font-bold px-4 py-2 text-white text-3xl rounded-md bg-green-500 cursor-pointer flex gap-8 hover:bg-green-600"
+                className="font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer flex gap-8 hover:bg-green-600"
               >
                 Làm mới
               </span>
               <div
                 onClick={handleStudentCount}
-                className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-3xl rounded-md bg-green-500 cursor-pointer gap-8"
+                className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer gap-8"
                 id="studentCount"
                 title="(Có thể sẽ hơi lag)"
               >
@@ -244,6 +291,12 @@ export default function App() {
                   Lấy sĩ số <span className="text-xl">(có thể sẽ hơi lag)</span>
                 </span>
               </div>
+              <span className="font-bold text-3xl">
+                {document
+                  .getElementById("ctl00_mainContent_lblSubject")
+                  ?.textContent?.split("-")[0]
+                  .trim()}
+              </span>
             </>
           )}
 
@@ -272,8 +325,8 @@ export default function App() {
             </>
           )}
         </div>
-        <div className="flex gap-6 items-center mb-3">
-          <div>
+        <div className="flex gap-6 items-center justify-between mb-3 mt-4">
+          <div className="flex items-center">
             <select
               name=""
               id=""
@@ -296,14 +349,15 @@ export default function App() {
                 <option
                   selected={subject.includes(move.subject)}
                   value={move?.moveId.replaceAll("_", "$")}
-                >{`${move?.subject} - ${move?.classId} - ${
-                  move?.lecturer ?? "N/A"
-                }`}</option>
+                >{`${move?.subject} (${move?.classId} - ${
+                  move?.lecturer.trim() == "" ? "N/A" : move?.lecturer
+                })`}</option>
               ))}
             </select>
             <select
               name=""
               id=""
+              value={filter.lecturer}
               className="ml-4 text-2xl border-2 rounded-md p-2 mt-2"
               onChange={(e) =>
                 setFilter((prev: any) => ({
@@ -321,14 +375,92 @@ export default function App() {
                 <option value={lecture}>{lecture}</option>
               ))}
             </select>
+            <input
+              name="search"
+              id=""
+              className="ml-4 text-2xl border-2 rounded-md p-2 mt-2"
+              placeholder="Tìm theo lớp"
+              value={filter.classId}
+              onChange={(e) => {
+                setFilter((prev: any) => ({
+                  ...prev,
+                  classId: e.target.value,
+                }));
+              }}
+            />
+            <div className="ml-4">
+              <span className="text-2xl">
+                Lọc sĩ số {`(≤ ${filter?.studentCount})`}{" "}
+              </span>
+              <span className="flex gap-2 items-center">
+                <input
+                  type="range"
+                  defaultValue={100}
+                  value={filter.studentCount}
+                  min={
+                    Math.min(
+                      ...Object.values(studentCount).map((value) =>
+                        Number(value)
+                      )
+                    ) ?? 0
+                  }
+                  max={
+                    Math.max(
+                      ...Object.values(studentCount).map((value) =>
+                        Number(value)
+                      )
+                    ) ?? 100
+                  }
+                  onChange={(e) => {
+                    if (Object.keys(studentCount).length === 0) {
+                      alert(`Cần phải lấy sĩ số lớp trước`);
+                    } else {
+                      setFilter((prev: any) => ({
+                        ...prev,
+                        studentCount: e.target.value,
+                      }));
+                    }
+                  }}
+                />
+              </span>
+            </div>
+
+            <span
+              className="cursor-pointer inline-block ml-4 mt-1 rounded-full !text-sm py-2 px-2 font-semibold hover:bg-slate-400 hover:text-white"
+              onClick={() =>
+                setFilter({
+                  lecturer: "",
+                  classId: "",
+                  studentCount:
+                    Object.values(studentCount).length > 0
+                      ? Math.max(
+                          ...Object.values(studentCount).map((value) =>
+                            Number(value)
+                          )
+                        ) ?? 100
+                      : 100,
+                  excludeSlots: [],
+                  excludeWeekdays: [],
+                })
+              }
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={16}
+                height={16}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-rotate-cw"
+              >
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+              </svg>
+            </span>
           </div>
-          <a
-            href="https://docs.google.com/spreadsheets/d/1CTlmTC4RgW4zk-A9VTkz4BGzjY2PMk5s/edit"
-            className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer gap-8"
-            target="_blank"
-          >
-            Xem review GV
-          </a>
         </div>
         {gotten < total && (
           <span className="my-4 flex gap-4 justify-between items-center w-full">
@@ -354,25 +486,47 @@ export default function App() {
         )}
       </div>
       {isFull && (
-        <div className="text-3xl mb-4">
-          Nếu bạn có nhu cầu cần chuyển lớp đã full, liên hệ{" "}
+        <div className="text-2xl mb-4">
+          Nếu bạn có nhu cầu cần chuyển lớp đã full, liên hệ anh{" "}
           <a
-            href="https://www.facebook.com/profile.php?id=100074006097767"
+            href="https://www.facebook.com/trinh.thai.1111/"
             target="_blank"
             rel="noreferrer"
           >
-            mình
+            Thái
           </a>{" "}
-          để được hỗ trợ nhé!
+          (All cơ sở) để được hỗ trợ nhé!
         </div>
       )}
-      <table className="w-full">
+      <table className="w-full rounded-lg">
         <thead>
           <tr className="">
-            <td></td>
+            <td className="text-white bg-blue-500 font-bold border p-2 w-[100px] text-center"></td>
             {weekdays.map((day) => (
-              <td className="text-white bg-blue-500 font-bold border p-2 w-[200px] text-center">
-                {day}
+              <td className="text-white bg-blue-500 font-bold border px-2 py-3 w-[200px] text-center">
+                <label
+                  htmlFor={day}
+                  className="flex justify-center items-center gap-2 !m-0 cursor-pointer"
+                >
+                  <input
+                    defaultChecked
+                    className="!mt-0"
+                    type="checkbox"
+                    id={day}
+                    checked={!filter.excludeWeekdays.includes(day)}
+                    onChange={(e) => {
+                      setFilter((prev: any) => ({
+                        ...prev,
+                        excludeWeekdays: !e.target.checked
+                          ? [...filter.excludeWeekdays, day]
+                          : filter.excludeWeekdays.filter(
+                              (item: any) => item != day
+                            ),
+                      }));
+                    }}
+                  />
+                  {day}
+                </label>
               </td>
             ))}
           </tr>
@@ -380,8 +534,30 @@ export default function App() {
         <tbody>
           {slots.map((slot: any) => (
             <tr className="">
-              <td className="text-white bg-blue-500 font-bold border w-[80px] text-center py-2 m-auto">
-                Slot {slot}
+              <td className="text-white bg-blue-500 font-bold border w-[80px] text-center px-3 py-4 m-auto">
+                <label
+                  htmlFor={slot}
+                  className="flex justify-center items-center gap-2 !m-0 cursor-pointer"
+                >
+                  <input
+                    defaultChecked
+                    className="!mt-0"
+                    type="checkbox"
+                    id={slot}
+                    checked={!filter.excludeSlots.includes(slot)}
+                    onChange={(e) => {
+                      setFilter((prev: any) => ({
+                        ...prev,
+                        excludeSlots: !e.target.checked
+                          ? [...filter.excludeSlots, slot]
+                          : filter.excludeSlots.filter(
+                              (item: any) => item != slot
+                            ),
+                      }));
+                    }}
+                  />
+                  Slot {slot}
+                </label>
               </td>
               {weekdays.map((day) => (
                 <td
@@ -395,25 +571,28 @@ export default function App() {
                       return (
                         <div
                           className={`border-[0.5px] border-black font-bold p-2 rounded-md mb-2 bg-opacity-5 cursor-pointer hover:scale-[1.03] duration-200 ${
-                            item.includes(filter.lecturer) ? "" : "hidden"
+                            item.includes(filter.lecturer) &&
+                            item
+                              .toLocaleLowerCase()
+                              .includes(filter.classId.toLowerCase()) &&
+                            (Object.keys(studentCount).length > 0
+                              ? studentCount?.[item.split(" ")[0]] <=
+                                filter.studentCount
+                              : true) &&
+                            !filter.excludeWeekdays.includes(day) &&
+                            !filter.excludeSlots.includes(slot)
+                              ? ""
+                              : "hidden"
                           }`}
                           style={{
                             backgroundColor: textToColor(item),
-                            // color: "black",
                           }}
                           title={getClassKey().get(item.split(" ")[0])}
                           onClick={async () => {
-                            console.log(item);
                             const userConfirmed = window.confirm(
                               `Bạn có chắc muốn chuyển qua lớp ${item} không?`
                             );
                             if (userConfirmed) {
-                              // throw new Error("abort");
-                              if (controller) {
-                                controller.abort();
-                              }
-                              controller = new AbortController();
-
                               setIsLoading((prev: any) => ({
                                 ...prev,
                                 moving: true,
@@ -547,6 +726,45 @@ export default function App() {
           ></iframe>
         </details>
       </div>
+      <div className="text-xl font-semibold flex gap-16 items-center mt-6">
+        <a
+          href="https://www.facebook.com/profile.php?id=100074006097767"
+          target="_blank"
+          className="text-blue-500 hover:underline"
+        >
+          Extension Support
+        </a>
+
+        <a
+          href="https://www.facebook.com/profile.php?id=100074006097767"
+          target="_blank"
+          className="text-blue-500 hover:underline"
+        >
+          Report Bug
+        </a>
+        <a
+          href="https://www.facebook.com/profile.php?id=100074006097767"
+          target="_blank"
+          className="text-blue-500 hover:underline"
+        >
+          Request feature
+        </a>
+        <a
+          href="https://chromewebstore.google.com/detail/fptu-move-out-class-tool/bmpjlffjfcpkjhgfjgponabjhkfmjkcb/reviews"
+          target="_blank"
+          className="text-blue-500 hover:underline"
+        >
+          Rate Us
+        </a>
+        <a
+          href="https://www.facebook.com/trinh.thai.1111/"
+          target="_blank"
+          className="text-blue-500 hover:underline"
+        >
+          Move to filled classes
+        </a>
+      </div>
+
       <div className="flex items-center gap-2 mt-4">
         <input
           id="showOldFeature"
