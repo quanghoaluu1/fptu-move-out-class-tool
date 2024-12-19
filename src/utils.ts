@@ -223,6 +223,37 @@ export const getLecturerList = async () => {
   return lecturerList;
 };
 
+export const handleDownload = () => {
+  const title = `${document.querySelector("#class-id")?.textContent}-${
+    document.querySelector("#ctl00_mainContent_lblOldGroup")?.textContent
+  }`;
+  const link = document.createElement("a");
+  const $ = cheerio.load(
+    document.getElementById("ctl00_mainContent_divStudents")?.innerHTML || ""
+  );
+  const result = $("tbody tr")
+    .map(
+      (_i, e) =>
+        `${$(e).find("td:nth-child(3)").text()}, ${$(e)
+          .find("td:nth-child(4)")
+          .text()
+          .trim()} ${$(e).find("td:nth-child(5)").text().trim()} ${$(e)
+          .find("td:nth-child(6)")
+          .text()
+          .trim()}`
+    )
+    .get()
+    .join("\n");
+  // Encode the text as UTF-8
+  const utf8Result = new TextEncoder().encode(result);
+  const file = new Blob([utf8Result], { type: "text/plain;charset=utf-8" });
+  link.href = URL.createObjectURL(file); // Create a url to download
+  link.download = `${title}.txt`; // File name
+  link.click(); // Click the url to download
+  URL.revokeObjectURL(link.href); // Invoke the download url
+  console.log(result);
+};
+
 // export function getCookie(cookieName: string) {
 //   const name = cookieName + "=";
 //   const decodedCookie = decodeURIComponent(document.cookie);

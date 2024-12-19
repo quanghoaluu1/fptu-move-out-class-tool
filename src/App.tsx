@@ -10,6 +10,7 @@ import {
   send,
   getCurrentSubjects,
   getCurrentStatus,
+  handleDownload,
 } from "./utils";
 import MultiSelectDropdown from "./components/MultiSelect";
 
@@ -266,72 +267,75 @@ export default function App() {
     <div className="w-full">
       <div className="my-8">
         <div className="flex gap-6 items-center mb-3">
-          {!isLoading.fetching && (
-            <>
-              <a
-                href="https://docs.google.com/spreadsheets/d/1CTlmTC4RgW4zk-A9VTkz4BGzjY2PMk5s/edit"
-                className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer gap-8"
-                target="_blank"
-              >
-                Xem review GV
-              </a>
-              <span
-                onClick={refresh}
-                className="font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer flex gap-8 hover:bg-green-600"
-              >
-                Làm mới
-              </span>
-              <div
-                onClick={handleStudentCount}
-                className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer gap-8"
-                id="studentCount"
-                title="(Có thể sẽ hơi lag)"
-              >
-                <span>
-                  Lấy sĩ số <span className="text-xl">(có thể sẽ hơi lag)</span>
+          <div className="flex gap-6 items-center mb-3">
+            {!isLoading.fetching && (
+              <>
+                <a
+                  href="https://docs.google.com/spreadsheets/d/1CTlmTC4RgW4zk-A9VTkz4BGzjY2PMk5s/edit"
+                  className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer gap-8"
+                  target="_blank"
+                >
+                  Xem review GV
+                </a>
+                <span
+                  onClick={refresh}
+                  className="font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer flex gap-8 hover:bg-green-600"
+                >
+                  Làm mới
                 </span>
-              </div>
-              <span className="font-bold text-3xl">
-                {document
-                  .getElementById("ctl00_mainContent_lblSubject")
-                  ?.textContent?.split("-")[0]
-                  .trim()}
-              </span>
-            </>
-          )}
+                <div
+                  onClick={handleStudentCount}
+                  className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer gap-8"
+                  id="studentCount"
+                  title="(Có thể sẽ hơi lag)"
+                >
+                  <span className="">
+                    Lấy sĩ số{" "}
+                    <span className="text-xl">(có thể sẽ hơi lag)</span>
+                  </span>
+                </div>
+                <span className="font-bold text-3xl" id="class-id">
+                  {document
+                    .getElementById("ctl00_mainContent_lblSubject")
+                    ?.textContent?.split("-")[0]
+                    .trim()}
+                </span>
+              </>
+            )}
 
-          {(isLoading.moving || isLoading.fetching) && (
-            <>
-              <div className="text-2xl">
-                {isLoading.moving
-                  ? "Đang thực hiện chuyển đổi, vui lòng đợi trong giây lát"
-                  : "Đang lấy sĩ số lớp"}
-              </div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width={24}
-                height={24}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-rotate-cw rotate"
-              >
-                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-                <path d="M21 3v5h-5" />
-              </svg>
-            </>
-          )}
+            {(isLoading.moving || isLoading.fetching) && (
+              <>
+                <div className="text-2xl">
+                  {isLoading.moving
+                    ? "Đang thực hiện chuyển đổi, vui lòng đợi trong giây lát"
+                    : "Đang lấy sĩ số lớp"}
+                </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width={24}
+                  height={24}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-rotate-cw rotate"
+                >
+                  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                  <path d="M21 3v5h-5" />
+                </svg>
+              </>
+            )}
+          </div>
         </div>
         <div className="flex gap-6 items-center justify-between mb-3 mt-4">
-          <div className="flex items-center">
+          <div className="flex items-center text-[14px]">
             <select
               name=""
               id=""
               defaultValue={""}
-              className="text-2xl border-2 rounded-md p-2 mt-2"
+              className="border-2 rounded-md p-2 mt-2"
               onChange={async (e) => {
                 setIsLoading((prev: any) => ({
                   ...prev,
@@ -358,7 +362,7 @@ export default function App() {
               name=""
               id=""
               value={filter.lecturer}
-              className="ml-4 text-2xl border-2 rounded-md p-2 mt-2"
+              className="ml-4 border-2 rounded-md p-2 mt-2"
               onChange={(e) =>
                 setFilter((prev: any) => ({
                   ...prev,
@@ -378,7 +382,7 @@ export default function App() {
             <input
               name="search"
               id=""
-              className="ml-4 text-2xl border-2 rounded-md p-2 mt-2"
+              className="w-[140px] ml-4 border-2 rounded-md p-2 mt-2"
               placeholder="Tìm theo lớp"
               value={filter.classId}
               onChange={(e) => {
@@ -389,7 +393,7 @@ export default function App() {
               }}
             />
             <div className="ml-4">
-              <span className="text-2xl">
+              <span className="">
                 Lọc sĩ số {`(≤ ${filter?.studentCount})`}{" "}
               </span>
               <span className="flex gap-2 items-center">
@@ -495,7 +499,16 @@ export default function App() {
           >
             Thái
           </a>{" "}
-          (All cơ sở) để được hỗ trợ nhé!
+          (All cơ sở) hoặc bạn{" "}
+          <a
+            href="https://www.facebook.com/tuan.cuong.561248"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Cường
+          </a>
+          {" (HCM) "}
+          để được hỗ trợ nhé!
         </div>
       )}
       <table className="w-full rounded-lg">
@@ -688,13 +701,19 @@ export default function App() {
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </div>
-            <div>
+            <div className="flex gap-4 items-center">
               Danh sách lớp hiện tại (
               {
                 document.querySelector("#ctl00_mainContent_lblOldGroup")
                   ?.textContent
               }
               )
+              <div
+                onClick={handleDownload}
+                className="hover:bg-green-700 text-2xl font-bold py-2 px-4 bg-green-500 text-white rounded-md"
+              >
+                Tải danh sách lớp
+              </div>
             </div>
           </summary>
           <div className="h-[500px] overflow-y-scroll" id="class-list"></div>
@@ -756,13 +775,24 @@ export default function App() {
         >
           Rate Us
         </a>
-        <a
-          href="https://www.facebook.com/trinh.thai.1111/"
-          target="_blank"
-          className="text-blue-500 hover:underline"
-        >
-          Move to filled classes
-        </a>
+        <div className="flex gap-6">
+          Move to filled class:
+          <a
+            href="https://www.facebook.com/trinh.thai.1111/"
+            target="_blank"
+            className="text-blue-500 hover:underline"
+          >
+            All campus
+          </a>
+          or
+          <a
+            href="https://www.facebook.com/tuan.cuong.561248"
+            target="_blank"
+            className="text-blue-500 hover:underline"
+          >
+            Xavalo
+          </a>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 mt-4">
