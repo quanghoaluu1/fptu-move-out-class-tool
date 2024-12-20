@@ -17,13 +17,13 @@ if (
   ReactDOM.createRoot(document.querySelector(`${rootPath} div`)!).render(
     <App />
   );
+} else if (
+  window.location.href.startsWith(
+    "https://fap.fpt.edu.vn/Report/ScheduleOfWeek.aspx"
+  )
+) {
+  const labels = document.querySelectorAll(`.label.label-primary`);
+  labels.forEach((label) => {
+    label.innerHTML = "";
+  });
 }
-// else if (
-//   window.location.href.startsWith(
-//     "https://fap.fpt.edu.vn/Schedule/CrossChange.aspx"
-//   )
-// ) {
-//   ReactDOM.createRoot(
-//     document.querySelector(`#ctl00_mainContent_lblRollNumber`)!
-//   ).render(<Test />);
-// }

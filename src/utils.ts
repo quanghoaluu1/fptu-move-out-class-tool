@@ -254,6 +254,32 @@ export const handleDownload = () => {
   console.log(result);
 };
 
+export const cleanTimetable = async (document: Document | undefined) => {
+  const labels = document?.querySelectorAll(".label.label-primary");
+  labels?.forEach((label) => {
+    label.innerHTML = "";
+  });
+  document?.querySelector(".container .row:nth-child(1)")?.remove();
+  document?.querySelector(".breadcrumb")?.remove();
+  document?.querySelector("tbody tr:nth-child(2)")?.remove();
+  document?.querySelectorAll("td > div > p").forEach((item) => item.remove());
+  document?.querySelectorAll("h2").forEach((item) => item.remove());
+  document?.querySelector("#ctl00_mainContent_divfoot")?.remove();
+  document?.querySelector("#ctl00_divUser")?.remove();
+  document?.querySelector("#cssTable")?.remove();
+  document?.querySelector('[id^="ctl00_divSupport"]')?.remove();
+  document?.querySelector('[id^="ctl00_mainContent_ghichu"]')?.remove();
+  document
+    ?.querySelector(".container")
+    ?.setAttribute(
+      "style",
+      "padding: 0px; margin: 0px; width: 100%;overflow-x: hidden;"
+    );
+  document
+    ?.querySelector(".container > .row > .col-md-12")
+    ?.setAttribute("style", "padding-right: 0px;");
+};
+
 // export function getCookie(cookieName: string) {
 //   const name = cookieName + "=";
 //   const decodedCookie = decodeURIComponent(document.cookie);

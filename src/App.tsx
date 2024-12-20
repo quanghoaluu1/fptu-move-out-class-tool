@@ -11,8 +11,8 @@ import {
   getCurrentSubjects,
   getCurrentStatus,
   handleDownload,
+  cleanTimetable,
 } from "./utils";
-import MultiSelectDropdown from "./components/MultiSelect";
 
 export default function App() {
   // Setup metadata
@@ -218,7 +218,7 @@ export default function App() {
     setLecturerList(lecturerListTemp);
     localStorage.setItem(
       "expireAt",
-      (Date.now() + 1000 * 60 * 60 * 24).toString()
+      (Date.now() + 1000 * 60 * 60 * 24 * 7).toString()
     );
   };
 
@@ -231,37 +231,6 @@ export default function App() {
       .getElementById("ctl00_mainContent_divNewGroupInfo")
       ?.classList.toggle("hidden");
   };
-
-  const COUNTRIES = [
-    "Austria",
-    "Belgium",
-    "Croatia",
-    "Bulgaria",
-    "Cyprus",
-    "Czech Republic",
-    "Denmark",
-    "Estonia",
-    "Finland",
-    "France",
-    "Germany",
-    "Greece",
-    "Hungary",
-    "Ireland",
-    "Italy",
-    "Latvia",
-    "Lithuania",
-    "Luxembourg",
-    "Malta",
-    "Netherlands",
-    "Poland",
-    "Portugal",
-    "Romania",
-    "Slovakia",
-    "Slovenia",
-    "Spain",
-    "Sweden",
-    "Ukraine",
-  ];
 
   return (
     <div className="w-full">
@@ -499,7 +468,8 @@ export default function App() {
           >
             Thái
           </a>{" "}
-          (All cơ sở) hoặc bạn{" "}
+          (All cơ sở)
+          {/* hoặc bạn{" "}
           <a
             href="https://www.facebook.com/tuan.cuong.561248"
             target="_blank"
@@ -508,7 +478,7 @@ export default function App() {
             Cường
           </a>
           {" (HCM) "}
-          để được hỗ trợ nhé!
+          để được hỗ trợ nhé! */}
         </div>
       )}
       <table className="w-full rounded-lg">
@@ -738,10 +708,18 @@ export default function App() {
             <div>Thời khóa biểu</div>
           </summary>
           <iframe
+            id="myframe"
             src="https://fap.fpt.edu.vn/Report/ScheduleOfWeek.aspx"
-            className="w-full h-[500px] border"
-
-            // style="border: 0px none; margin-left: -36px; height: 812px; margin-top: -486px; width: 650px;">
+            className="w-full h-[400px] border"
+            onLoad={() => {
+              const iframe = document.getElementById(
+                "myframe"
+              ) as HTMLIFrameElement;
+              if (iframe) {
+                const iframeDocument = iframe.contentWindow?.document;
+                cleanTimetable(iframeDocument);
+              }
+            }}
           ></iframe>
         </details>
       </div>
@@ -784,14 +762,14 @@ export default function App() {
           >
             All campus
           </a>
-          or
+          {/* or
           <a
             href="https://www.facebook.com/tuan.cuong.561248"
             target="_blank"
             className="text-blue-500 hover:underline"
           >
             Xavalo
-          </a>
+          </a> */}
         </div>
       </div>
 
