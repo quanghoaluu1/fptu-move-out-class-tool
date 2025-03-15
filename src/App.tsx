@@ -170,6 +170,7 @@ export default function App() {
         ).text();
       }
       const $$ = cheerio.load(nextClass);
+
       const classInfo = $$("#ctl00_mainContent_lblNewSlot").text();
       const className = $$(
         "#ctl00_mainContent_dllCourse > option:selected"
@@ -178,6 +179,7 @@ export default function App() {
       const lecture = classDetail[0].slice(
         classDetail[0].indexOf("Lecture:") + 9
       );
+      //TODO: allow user to see classroom number
       for (const detail of classDetail) {
         const weekday = detail.slice(0, 3);
         const slot = detail.slice(11, 12);
@@ -469,16 +471,6 @@ export default function App() {
             Thái
           </a>{" "}
           (All cơ sở)
-          {/* hoặc bạn{" "}
-          <a
-            href="https://www.facebook.com/tuan.cuong.561248"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Cường
-          </a>
-          {" (HCM) "}
-          để được hỗ trợ nhé! */}
         </div>
       )}
       <table className="w-full rounded-lg">
@@ -575,6 +567,7 @@ export default function App() {
                             const userConfirmed = window.confirm(
                               `Bạn có chắc muốn chuyển qua lớp ${item} không?`
                             );
+                            // const userConfirmed = true;
                             if (userConfirmed) {
                               setIsLoading((prev: any) => ({
                                 ...prev,
@@ -725,28 +718,6 @@ export default function App() {
       </div>
       <div className="text-xl font-semibold flex gap-16 items-center mt-6">
         <a
-          href="https://www.facebook.com/profile.php?id=100074006097767"
-          target="_blank"
-          className="text-blue-500 hover:underline"
-        >
-          Extension Support
-        </a>
-
-        <a
-          href="https://www.facebook.com/profile.php?id=100074006097767"
-          target="_blank"
-          className="text-blue-500 hover:underline"
-        >
-          Report Bug
-        </a>
-        <a
-          href="https://www.facebook.com/profile.php?id=100074006097767"
-          target="_blank"
-          className="text-blue-500 hover:underline"
-        >
-          Request feature
-        </a>
-        <a
           href="https://chromewebstore.google.com/detail/fptu-move-out-class-tool/bmpjlffjfcpkjhgfjgponabjhkfmjkcb/reviews"
           target="_blank"
           className="text-blue-500 hover:underline"
@@ -762,14 +733,6 @@ export default function App() {
           >
             All campus
           </a>
-          {/* or
-          <a
-            href="https://www.facebook.com/tuan.cuong.561248"
-            target="_blank"
-            className="text-blue-500 hover:underline"
-          >
-            Xavalo
-          </a> */}
         </div>
       </div>
 
@@ -784,7 +747,7 @@ export default function App() {
           className="text-xl mb-0 mt-2 leading-none"
           htmlFor="showOldFeature"
         >
-          Hiện chức năng cũ của FAP
+          Hiện chức năng FAP cũ
         </label>
       </div>
     </div>
