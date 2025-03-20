@@ -10,7 +10,7 @@
 - Xem thời khóa biểu dễ dàng ngay trên tab 📅
 - Tìm kiếm lớp theo giảng viên 🔍
 - Xem review giảng viên ⭐
-- Xem sĩ số lớp 👥 (Experimental)
+- Xem sĩ số lớp 👥 (Đang thử nghiệm)
 
 ## 📖 Hướng dẫn sử dụng:
 
@@ -25,6 +25,6 @@
 
 ![](images/demo1.png)
 
-## Installation
+## 🔗 Link tải:
 
 https://chromewebstore.google.com/detail/fptu-move-out-class-tool/bmpjlffjfcpkjhgfjgponabjhkfmjkcb?authuser=0&hl=en
