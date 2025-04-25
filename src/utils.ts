@@ -159,10 +159,13 @@ export const getCurrentStatus = async () => {
   } else {
     campusName = "xavalo";
   }
+  //  const deptData = await fetch("");
 
   let deptNum = Object.keys((deptData as any)[campusName]).filter((item) =>
     item.includes(classCode.toLowerCase())
   )?.[0];
+  console.log("deptNum", deptNum);
+  console.log("classCode", classCode);
 
   const link = `https://fap.fpt.edu.vn/Course/Courses.aspx${currentLink}=${
     (deptData as { [key: string]: { [key: string]: number } })[campusName][
