@@ -1,5 +1,4 @@
 import * as cheerio from "cheerio";
-import deptData from "./dept.json";
 
 export function mapToObject(map: Map<string, Map<string, string[]>>) {
   const obj: any = {};
@@ -159,19 +158,20 @@ export const getCurrentStatus = async () => {
   } else {
     campusName = "xavalo";
   }
-  //  const deptData = await fetch("");
+  const deptData = await fetch(
+    "https://pear104.github.io/fptu-move-out-class-tool/dept.json"
+  ).then((res) => res.json());
 
   let deptNum = Object.keys((deptData as any)[campusName]).filter((item) =>
     item.includes(classCode.toLowerCase())
   )?.[0];
-  console.log("deptNum", deptNum);
-  console.log("classCode", classCode);
 
   const link = `https://fap.fpt.edu.vn/Course/Courses.aspx${currentLink}=${
     (deptData as { [key: string]: { [key: string]: number } })[campusName][
       deptNum
     ]
   }`;
+
   console.log(link);
   const res = await fetch(link, {
     priority: "low",

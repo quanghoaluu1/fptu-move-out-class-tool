@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as cheerio from "cheerio";
 import { classData, slots, weekdays } from "./constants/classData";
 import { formGetter, secondFormGetter } from "./constants/formData";
@@ -175,10 +175,17 @@ export default function App() {
       const className = $$(
         "#ctl00_mainContent_dllCourse > option:selected"
       ).text();
+
       const classDetail = classInfo.split(",");
       const lecture = classDetail[0].slice(
         classDetail[0].indexOf("Lecture:") + 9
       );
+      const classRoom = classDetail[0].slice(
+        classDetail[0].indexOf("RoomNo:") + 9,
+        classDetail[0].indexOf(" - Lecture:")
+      );
+      console.log("classRoom", classRoom);
+
       //TODO: allow user to see classroom number
       for (const detail of classDetail) {
         const weekday = detail.slice(0, 3);
@@ -190,7 +197,8 @@ export default function App() {
             updatedClassData.get(weekday) || new Map<string, string[]>();
           const classNames = slotMap.get(slot) || [];
           classNames.push(
-            className + ` (${lecture.length > 0 ? lecture : "N/A"})`
+            className +
+              ` (${lecture.length > 0 ? lecture : "N/A"}) \n${classRoom}`
           );
           slotMap.set(slot, classNames);
           updatedClassData.set(weekday, slotMap);
@@ -456,7 +464,11 @@ export default function App() {
                 <path d="M21 3v5h-5" />
               </svg>
             </span>
-            <progress value={gotten} max={total} className="w-full" />
+            <progress
+              value={gotten}
+              max={total}
+              className="w-full border border-zinc-500"
+            />
           </span>
         )}
       </div>
@@ -627,8 +639,12 @@ export default function App() {
                             }
                           }}
                         >
-                          {item}
-                          <br />
+                          {item.split("\n").map((line, index) => (
+                            <React.Fragment key={line + index}>
+                              {line}
+                              <br />
+                            </React.Fragment>
+                          ))}
                           <span className="text-lg mt-1">
                             {`${studentCount?.[item.split(" ")[0]] ?? ""} ${
                               studentCount?.[item.split(" ")[0]]
@@ -722,7 +738,7 @@ export default function App() {
           target="_blank"
           className="text-blue-500 hover:underline"
         >
-          Rate Us
+          Feedback
         </a>
         <div className="flex gap-6">
           Move to filled class:
