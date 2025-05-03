@@ -60,7 +60,10 @@ const Timetable: React.FC<TimetableProps> = ({
               if (classId) {
                 url.searchParams.set("id", classId);
               }
-              window.location.href = url.toString();
+              localStorage.removeItem(subject);
+              window.location.href =
+                "https://fap.fpt.edu.vn/FrontOffice/MoveSubject.aspx?id=" +
+                getClassKey().get(item.split(" ")[0]);
             } else if (
               res?.includes("Bạn không thể chuyển tới lớp này, bởi vì")
             ) {
@@ -97,7 +100,6 @@ const Timetable: React.FC<TimetableProps> = ({
                   type="checkbox"
                   id={day}
                   checked={!filter.excludeWeekdays.includes(day)}
-                  onChange={(e) => {}}
                 />
                 {day}
               </label>
@@ -119,7 +121,6 @@ const Timetable: React.FC<TimetableProps> = ({
                   type="checkbox"
                   id={slot}
                   checked={!filter.excludeSlots.includes(slot)}
-                  onChange={(e) => {}}
                 />
                 Slot {slot}
               </label>

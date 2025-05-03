@@ -158,6 +158,7 @@ export default function App() {
         classes.set(value, $(e).text());
       }
     });
+
     setTotal(classes.size);
 
     // Fetch classes's time table
@@ -166,29 +167,37 @@ export default function App() {
     for (const [key, _item] of classes) {
       formData.set("ctl00$mainContent$dllCourse", key);
       let nextClass;
-      if (key == id) {
-        nextClass = await (
-          await fetch(baseUrl + `?id=${secondId}`, {
-            method: "POST",
-            headers: {},
-            body: secondFormData,
-          })
-        ).text();
-      } else {
-        nextClass = await (
-          await fetch(window.location.href, {
-            method: "POST",
-            headers: {},
-            body: formData,
-          })
-        ).text();
-      }
+      // if (key == id) {
+      //   nextClass = await (
+      //     await fetch(baseUrl + `?id=${secondId}`, {
+      //       method: "POST",
+      //       headers: {},
+      //       body: secondFormData,
+      //     })
+      //   ).text();
+      // } else {
+      //   nextClass = await (
+      //     await fetch(window.location.href, {
+      //       method: "POST",
+      //       headers: {},
+      //       body: formData,
+      //     })
+      //   ).text();
+      // }
+      nextClass = await (
+        await fetch(window.location.href, {
+          method: "POST",
+          headers: {},
+          body: formData,
+        })
+      ).text();
       const $$ = cheerio.load(nextClass);
 
       const classInfo = $$("#ctl00_mainContent_lblNewSlot").text();
       const className = $$(
         "#ctl00_mainContent_dllCourse > option:selected"
       ).text();
+      console.log("className", classInfo);
 
       const classDetail = classInfo.split(",");
       const lecture = classDetail[0].slice(
@@ -198,7 +207,6 @@ export default function App() {
         classDetail[0].indexOf("RoomNo:") + 9,
         classDetail[0].indexOf(" - Lecture:")
       );
-      console.log("classRoom", classRoom);
 
       //TODO: allow user to see classroom number
       for (const detail of classDetail) {
@@ -232,9 +240,14 @@ export default function App() {
           ?.get(slot)
           ?.forEach((item: any) => {
             if (
-              !lecturerListTemp.includes(item.split("(")[1].replace(")", ""))
+              !lecturerListTemp.includes(
+                item.slice(item.indexOf("(") + 1, item.indexOf(")"))
+              )
             ) {
-              lecturerListTemp.push(item.split("(")[1].replace(")", ""));
+              lecturerListTemp.push(
+                item.slice(item.indexOf("(") + 1, item.indexOf(")"))
+              );
+              // lecturerListTemp.push(item.split("(")[1].replace(")", ""));
             }
           });
       });
@@ -242,7 +255,7 @@ export default function App() {
     setLecturerList(lecturerListTemp);
     localStorage.setItem(
       "expireAt",
-      (Date.now() + 1000 * 60 * 60 * 24 * 7).toString()
+      (Date.now() + 1000 * 60 * 60 * 24).toString()
     );
   };
 
