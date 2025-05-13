@@ -2,7 +2,7 @@ import * as cheerio from "cheerio";
 
 const url = "https://fap.fpt.edu.vn/FrontOffice/MoveSubject.aspx";
 
-export const formGetter = (id: string = "") => {
+export const formGetter = (id: string = "", isRegisterCourse = false) => {
   //   const __EVENTTARGET = document
   //     .getElementById("__EVENTTARGET")
   //     ?.getAttribute("value");
@@ -28,8 +28,12 @@ export const formGetter = (id: string = "") => {
   formData.append("__EVENTVALIDATION", __EVENTVALIDATION || "");
   formData.append("__VIEWSTATE", __VIEWSTATE || "");
   formData.append("__VIEWSTATEGENERATOR", __VIEWSTATEGENERATOR || "");
-  formData.append("ctl00$mainContent$dllCourse", id + "");
   formData.append("ctl00$mainContent$hdException", "");
+  if (isRegisterCourse) {
+    formData.append("ctl00$mainContent$ddlGroups", id + "");
+  } else {
+    formData.append("ctl00$mainContent$dllCourse", id + "");
+  }
   return formData;
 };
 

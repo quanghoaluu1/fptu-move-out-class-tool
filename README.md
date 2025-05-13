@@ -1,5 +1,11 @@
 # FPTU Move Out Class Tool
 
+[![Chrome users](https://img.shields.io/chrome-web-store/users/bmpjlffjfcpkjhgfjgponabjhkfmjkcb?logo=googlechrome&logoColor=white&)](https://chromewebstore.google.com/detail/bmpjlffjfcpkjhgfjgponabjhkfmjkcb)
+[![Chrome rate](https://img.shields.io/chrome-web-store/rating/bmpjlffjfcpkjhgfjgponabjhkfmjkcb?logo=googlechrome&logoColor=white&)](https://chromewebstore.google.com/detail/bmpjlffjfcpkjhgfjgponabjhkfmjkcb)
+![GitHub stars](https://img.shields.io/github/stars/Pear104/coursera-tool)
+
+![Banner](./images/banner.png)
+
 ### 🚀 Tiện ích hỗ trợ sinh viên FPTU - Tối ưu trải nghiệm đổi lớp!
 
 ## 🌟 Tính năng nổi bật:
@@ -28,3 +34,7 @@
 ## 🔗 Link tải:
 
 https://chromewebstore.google.com/detail/fptu-move-out-class-tool/bmpjlffjfcpkjhgfjgponabjhkfmjkcb?authuser=0&hl=en
+
+---
+
+_From FPT with ❤️_

@@ -1,17 +1,20 @@
 import React from "react";
 import { weekdays, slots } from "../constants/classData";
 import { textToColor } from "../utils";
+import * as cheerio from "cheerio";
 
 interface TimetableProps {
   timeTable: Map<string, Map<string, string[]>> | undefined;
   filter: any;
   studentCount: any;
-  getClassKey: () => Map<string, string>;
+  getClassKey: (isRegisterCourse?: boolean) => Map<string, string>;
   sendTrackingEvent: () => Promise<void>;
   setIsLoading: (value: any) => void;
   formData: any;
   setIsFull: (value: boolean) => void;
   subject: string;
+  setFilter: (value: any) => void;
+  isRegisterCourse?: boolean;
 }
 
 const Timetable: React.FC<TimetableProps> = ({
@@ -24,6 +27,8 @@ const Timetable: React.FC<TimetableProps> = ({
   formData,
   setIsFull,
   subject,
+  setFilter,
+  isRegisterCourse,
 }) => {
   const handleClassClick = async (item: string) => {
     const userConfirmed = window.confirm(
@@ -36,8 +41,12 @@ const Timetable: React.FC<TimetableProps> = ({
         moving: true,
       }));
 
-      const classId = getClassKey().get(item.split(" ")[0]);
-      formData.set("ctl00$mainContent$dllCourse", classId);
+      const classId = getClassKey(isRegisterCourse).get(item.split(" (")[0]);
+      if (isRegisterCourse) {
+        formData.set("ctl00$mainContent$ddlGroups", classId);
+      } else {
+        formData.set("ctl00$mainContent$dllCourse", classId);
+      }
       formData.set("ctl00$mainContent$btSave", "Save");
       fetch(window.location.href, {
         method: "POST",
@@ -47,31 +56,43 @@ const Timetable: React.FC<TimetableProps> = ({
       })
         .then((res) => res.text())
         .then((text) => {
-          const alertTextRegex = /alert\('([^']*)'\)/;
-          const match = text.match(alertTextRegex);
-          let res = match?.[1]?.replaceAll("</br>", "\n");
-          if (res) {
-            alert(res);
-            if (res?.includes("Bạn không thể chuyển tới lớp này, bởi vì")) {
-              setIsFull(true);
-            }
-            if (res?.includes("đã được chấp nhận")) {
-              const url = new URL(window.location.href);
-              if (classId) {
-                url.searchParams.set("id", classId);
-              }
-              localStorage.removeItem(subject);
-              window.location.href =
-                "https://fap.fpt.edu.vn/FrontOffice/MoveSubject.aspx?id=" +
-                getClassKey().get(item.split(" ")[0]);
-            } else if (
-              res?.includes("Bạn không thể chuyển tới lớp này, bởi vì")
-            ) {
-              setIsFull(true);
+          if (isRegisterCourse) {
+            const $ = cheerio.load(text);
+            const alertTextRegex = $("#ctl00_mainContent_lblMessage").text();
+            const match = text.match(alertTextRegex);
+            if (alertTextRegex.startsWith("Bạn không thể đăng ký")) {
+              alert(alertTextRegex);
+            } else {
+              alert("Yêu cầu của bạn đã được chấp nhận");
             }
           } else {
-            alert("Bạn đã ở trong lớp này rồi");
+            const alertTextRegex = /alert\('([^']*)'\)/;
+            const match = text.match(alertTextRegex);
+            let res = match?.[1]?.replaceAll("</br>", "\n");
+            if (res) {
+              alert(res);
+              if (res?.includes("Bạn không thể chuyển tới lớp này, bởi vì")) {
+                setIsFull(true);
+              }
+              if (res?.includes("đã được chấp nhận")) {
+                const url = new URL(window.location.href);
+                if (classId) {
+                  url.searchParams.set("id", classId);
+                }
+                localStorage.removeItem(subject);
+                window.location.href =
+                  "https://fap.fpt.edu.vn/FrontOffice/MoveSubject.aspx?id=" +
+                  getClassKey().get(item.split(" ")[0]);
+              } else if (
+                res?.includes("Bạn không thể chuyển tới lớp này, bởi vì")
+              ) {
+                setIsFull(true);
+              }
+            } else {
+              alert("Bạn đã ở trong lớp này rồi");
+            }
           }
+
           setIsLoading((prev: any) => ({
             ...prev,
             moving: false,
@@ -100,6 +121,16 @@ const Timetable: React.FC<TimetableProps> = ({
                   type="checkbox"
                   id={day}
                   checked={!filter.excludeWeekdays.includes(day)}
+                  onChange={(e) => {
+                    setFilter((prev: any) => ({
+                      ...prev,
+                      excludeWeekdays: !e.target.checked
+                        ? [...filter.excludeWeekdays, day]
+                        : filter.excludeWeekdays.filter(
+                            (item: any) => item != day
+                          ),
+                    }));
+                  }}
                 />
                 {day}
               </label>
@@ -121,6 +152,16 @@ const Timetable: React.FC<TimetableProps> = ({
                   type="checkbox"
                   id={slot}
                   checked={!filter.excludeSlots.includes(slot)}
+                  onChange={(e) => {
+                    setFilter((prev: any) => ({
+                      ...prev,
+                      excludeSlots: !e.target.checked
+                        ? [...filter.excludeSlots, slot]
+                        : filter.excludeSlots.filter(
+                            (item: any) => item != slot
+                          ),
+                    }));
+                  }}
                 />
                 Slot {slot}
               </label>
@@ -155,7 +196,12 @@ const Timetable: React.FC<TimetableProps> = ({
                         style={{
                           backgroundColor: textToColor(item),
                         }}
-                        title={getClassKey().get(item.split(" ")[0]) || ""}
+                        // title={`${item.split(" ")[0]} - ${getClassKey(true)}`}
+                        title={getClassKey(true).get(item.split(" (")[0]) || ""}
+                        // onClick={() => {
+                        //   console.log(item);
+                        //   console.log(getGroupId(item.split(" (")[0]));
+                        // }}
                         onClick={() => handleClassClick(item)}
                       >
                         {item.split("\n").map((line, index) => (

@@ -1,6 +1,7 @@
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import RegisterCourse from "./RegisterCourse.tsx";
 // import Test from "./Test.tsx";
 
 const rootPath =
@@ -16,6 +17,14 @@ if (
 ) {
   ReactDOM.createRoot(document.querySelector(`${rootPath} div`)!).render(
     <App />
+  );
+} else if (
+  window.location.href.startsWith(
+    "https://fap.fpt.edu.vn/FrontOffice/RegisterCourseFast.aspx"
+  )
+) {
+  ReactDOM.createRoot(document.querySelector(`${rootPath} div`)!).render(
+    <RegisterCourse />
   );
 } else if (
   window.location.href.startsWith(

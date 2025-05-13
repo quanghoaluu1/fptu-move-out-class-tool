@@ -20,12 +20,12 @@ import FilterSection from "./components/FilterSection";
 import ClassListDetails from "./components/ClassListDetails";
 import TimetableDetails from "./components/TimetableDetails";
 
-export default function App() {
+export default function RegisterCourse() {
   // Setup metadata
   const url = window.location.href;
   const id = url.slice(url.indexOf("id=") + 3).split("&")[0];
   const baseUrl = window.location.origin + window.location.pathname;
-  const formData = formGetter(id);
+  const formData = formGetter(id, true);
   let secondId = "";
   let subject =
     document.getElementById("ctl00_mainContent_lblSubject")?.textContent || "";
@@ -80,10 +80,14 @@ export default function App() {
 
   useEffect(() => {
     const fetchInitialData = async () => {
+      console.log("Register course ne");
       await crawlAndSave();
     };
-
-    fetchInitialData();
+    try {
+      fetchInitialData();
+    } catch (error) {
+      console.log("error", error);
+    }
   }, []);
 
   useEffect(() => {
@@ -121,30 +125,30 @@ export default function App() {
 
   const crawlAndSave = async () => {
     // Check cached or not
-    if (
-      Date.now() < Number(localStorage.getItem("expireAt")) &&
-      timeTableData
-    ) {
-      let lecturerList: any = [];
-      slots.forEach((slot: any) => {
-        weekdays.forEach((day: any) => {
-          timeTable
-            .get(day)
-            ?.get(slot)
-            ?.forEach((item: any) => {
-              if (!lecturerList.includes(item.split("(")[1].replace(")", ""))) {
-                lecturerList.push(item.split("(")[1].replace(")", ""));
-              }
-            });
-        });
-      });
-      setLecturerList(lecturerList);
-      return;
-    }
+    // if (
+    //   Date.now() < Number(localStorage.getItem("expireAt")) &&
+    //   timeTableData
+    // ) {
+    //   let lecturerList: any = [];
+    //   slots.forEach((slot: any) => {
+    //     weekdays.forEach((day: any) => {
+    //       timeTable
+    //         .get(day)
+    //         ?.get(slot)
+    //         ?.forEach((item: any) => {
+    //           if (!lecturerList.includes(item.split("(")[1].replace(")", ""))) {
+    //             lecturerList.push(item.split("(")[1].replace(")", ""));
+    //           }
+    //         });
+    //     });
+    //   });
+    //   setLecturerList(lecturerList);
+    //   return;
+    // }
 
     // Parse classes
     const data: string =
-      document.querySelector("#ctl00_mainContent_dllCourse")?.innerHTML || "";
+      document.querySelector("#ctl00_mainContent_ddlGroups")?.innerHTML || "";
     const $ = cheerio.load(data);
     const classes = new Map<string, string>();
     classes.set(
@@ -165,7 +169,7 @@ export default function App() {
     // console.time("Execution Time"); // Start timer
     const secondFormData = await secondFormGetter(secondId, id);
     for (const [key, _item] of classes) {
-      formData.set("ctl00$mainContent$dllCourse", key);
+      formData.set("ctl00$mainContent$ddlGroups", key);
       let nextClass;
       // if (key == id) {
       //   nextClass = await (
@@ -193,20 +197,29 @@ export default function App() {
       ).text();
       const $$ = cheerio.load(nextClass);
 
-      const classInfo = $$("#ctl00_mainContent_lblNewSlot").text();
+      const classInfo = $$("#ctl00_mainContent_lblCourseInfo")
+        .text()
+        .replaceAll(
+          "(học tại nhà văn hóa Sinh viên, khu Đại học quốc gia)",
+          ""
+        );
       const className = $$(
-        "#ctl00_mainContent_dllCourse > option:selected"
+        "#ctl00_mainContent_ddlGroups > option:selected"
       ).text();
-      console.log("className", classInfo);
 
       const classDetail = classInfo.split(",");
       const lecture = classDetail[0].slice(
-        classDetail[0].indexOf("Lecture:") + 9
+        classDetail[0].indexOf("Lecture:") + 10
       );
-      const classRoom = classDetail[0].slice(
-        classDetail[0].indexOf("RoomNo:") + 9,
-        classDetail[0].indexOf(" - Lecture:")
-      );
+      const classRoom = classDetail[0]
+        .slice(
+          classDetail[0].indexOf("RoomNo:") + 9,
+          classDetail[0].indexOf(" - Lecture:")
+        )
+        .replaceAll(
+          "(học tại nhà văn hóa Sinh viên, khu Đại học quốc gia)",
+          ""
+        );
 
       //TODO: allow user to see classroom number
       for (const detail of classDetail) {
@@ -219,9 +232,11 @@ export default function App() {
             updatedClassData.get(weekday) || new Map<string, string[]>();
           const classNames = slotMap.get(slot) || [];
           classNames.push(
+            // className
             className +
               ` (${lecture.length > 0 ? lecture : "N/A"}) \n${classRoom}`
           );
+
           slotMap.set(slot, classNames);
           updatedClassData.set(weekday, slotMap);
           setTimeTable(updatedClassData);
@@ -314,6 +329,7 @@ export default function App() {
           isLoading={isLoading}
           refresh={refresh}
           handleStudentCount={handleStudentCount}
+          isRegisterCourse={true}
         />
         <FilterSection
           filter={filter}
@@ -325,6 +341,7 @@ export default function App() {
           changeSubjectForm={changeSubjectForm}
           setIsLoading={setIsLoading}
           send={send}
+          isRegisterCourse={true}
         />
         {gotten < total && (
           <span className="my-4 flex gap-4 justify-between items-center w-full">
@@ -377,11 +394,9 @@ export default function App() {
         setIsFull={setIsFull}
         subject={subject}
         setFilter={setFilter}
+        isRegisterCourse={true}
       />
-
-      <ClassListDetails handleDownload={handleDownload} />
       <TimetableDetails />
-      <MoveToFilledClass />
       <ShowOldFeature />
     </div>
   );

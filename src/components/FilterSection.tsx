@@ -10,6 +10,7 @@ interface FilterSectionProps {
   changeSubjectForm: any;
   setIsLoading: (value: any) => void;
   send: (value: any, form: any) => void;
+  isRegisterCourse?: boolean;
 }
 
 const FilterSection: React.FC<FilterSectionProps> = ({
@@ -22,38 +23,41 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   changeSubjectForm,
   setIsLoading,
   send,
+  isRegisterCourse,
 }) => {
   return (
     <div className="flex gap-6 items-center justify-between mb-3 mt-4">
       <div className="flex items-center text-[14px]">
-        <select
-          name=""
-          id=""
-          defaultValue={""}
-          className="border-2 rounded-md p-2 mt-2"
-          onChange={async (e) => {
-            setIsLoading((prev: any) => ({
-              ...prev,
-              moving: true,
-            }));
-            if (e.target.value) {
-              send(e.target.value, changeSubjectForm);
-            }
-          }}
-        >
-          <option value="" disabled>
-            Tìm theo môn học
-          </option>
-          {moveList?.map((move: any) => (
-            <option
-              key={move.moveId}
-              selected={subject.includes(move.subject)}
-              value={move?.moveId.replaceAll("_", "$")}
-            >{`${move?.subject} (${move?.classId} - ${
-              move?.lecturer.trim() == "" ? "N/A" : move?.lecturer
-            })`}</option>
-          ))}
-        </select>
+        {isRegisterCourse && (
+          <select
+            name=""
+            id=""
+            defaultValue={""}
+            className="border-2 rounded-md p-2 mt-2"
+            onChange={async (e) => {
+              setIsLoading((prev: any) => ({
+                ...prev,
+                moving: true,
+              }));
+              if (e.target.value) {
+                send(e.target.value, changeSubjectForm);
+              }
+            }}
+          >
+            <option value="" disabled>
+              Tìm theo môn học
+            </option>
+            {moveList?.map((move: any) => (
+              <option
+                key={move.moveId}
+                selected={subject.includes(move.subject)}
+                value={move?.moveId.replaceAll("_", "$")}
+              >{`${move?.subject} (${move?.classId} - ${
+                move?.lecturer.trim() == "" ? "N/A" : move?.lecturer
+              })`}</option>
+            ))}
+          </select>
+        )}
         <select
           name=""
           id=""
@@ -122,7 +126,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         </div>
 
         <span
-          className="cursor-pointer inline-block ml-4 mt-1 rounded-full !text-sm py-2 px-2 font-semibold hover:bg-slate-400 hover:text-white"
+          className="cursor-pointer inline-block ml-4 mt-1 rounded-full !text-sm py-2 px-2 font-semibold bg-slate-500 hover:bg-slate-400 text-white"
           onClick={() =>
             setFilter({
               lecturer: "",
@@ -150,10 +154,10 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="lucide lucide-rotate-cw"
+            className="lucide lucide-x-icon lucide-x"
           >
-            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-            <path d="M21 3v5h-5" />
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
           </svg>
         </span>
       </div>

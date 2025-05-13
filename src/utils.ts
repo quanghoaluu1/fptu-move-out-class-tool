@@ -42,13 +42,16 @@ export const textToColor = (text: string): string => {
   return color;
 };
 
-export const getClassKey = (): any => {
+export const getClassKey = (isRegisterCourse: boolean = false): any => {
   const id = window.location.href.slice(window.location.href.indexOf("=") + 1);
 
-  const data: string =
-    document.querySelector("#ctl00_mainContent_dllCourse")?.innerHTML || "";
+  const selectId = isRegisterCourse
+    ? "#ctl00_mainContent_ddlGroups"
+    : "#ctl00_mainContent_dllCourse";
+
+  let data: string = document.querySelector(selectId)?.innerHTML || "";
   const $ = cheerio.load(data);
-  const classes = new Map<string, string>();
+  let classes = new Map<string, string>();
   classes.set(
     document.getElementById("ctl00_mainContent_lblOldGroup")?.innerText || "",
     id

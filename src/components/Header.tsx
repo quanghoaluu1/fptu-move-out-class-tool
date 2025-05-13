@@ -4,12 +4,14 @@ interface HeaderProps {
   isLoading: { moving: boolean; fetching: boolean };
   refresh: () => void;
   handleStudentCount: () => void;
+  isRegisterCourse?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
   isLoading,
   refresh,
   handleStudentCount,
+  isRegisterCourse,
 }) => {
   return (
     <div className="flex gap-6 items-center mb-3">
@@ -29,16 +31,16 @@ const Header: React.FC<HeaderProps> = ({
             >
               Làm mới
             </span>
-            <div
-              onClick={handleStudentCount}
-              className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer gap-8"
-              id="studentCount"
-              title="(Có thể sẽ hơi lag)"
-            >
-              <span className="">
-                Lấy sĩ số <span className="text-xl">(có thể sẽ hơi lag)</span>
-              </span>
-            </div>
+            {!isRegisterCourse && (
+              <div
+                onClick={handleStudentCount}
+                className="group hover:bg-green-600 font-bold px-4 py-2 text-white text-2xl rounded-md bg-green-500 cursor-pointer gap-8"
+                id="studentCount"
+                title="(Có thể sẽ hơi lag)"
+              >
+                <span className="">Lấy sĩ số</span>
+              </div>
+            )}
             <span className="font-bold text-3xl" id="class-id">
               {document
                 .getElementById("ctl00_mainContent_lblSubject")
