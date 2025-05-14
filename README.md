@@ -15,7 +15,7 @@
 - Xem danh sách lớp trực tiếp trong tab trình duyệt 🗂️
 - Xem thời khóa biểu dễ dàng ngay trên tab 📅
 - Tìm kiếm lớp theo giảng viên 🔍
-- Xem review giảng viên ⭐
+- Xem review giảng viên ⭐ (Xin cảm ơn đặc biệt tới vị đại hiệp nào đã làm ra file sheet review giảng viên)
 - Xem sĩ số lớp 👥 (Đang thử nghiệm)
 
 ## 📖 Hướng dẫn sử dụng:
@@ -27,7 +27,8 @@
 
 ## ⚠️ Lưu ý:
 
-- Nếu thấy lịch bị cũ, hãy nhấn "Làm mới" ở góc trên cùng để cập nhật lịch học mới nhất nhé! 🔄
+- Nếu thấy lịch bị cũ, hãy nhấn "Làm mới" ở góc trên cùng để cập nhật lịch học và giảng viên mới nhất nhé! 🔄
+- Khuyến khích không nên dùng trong giờ cao điểm
 
 ![](images/demo1.png)
 
