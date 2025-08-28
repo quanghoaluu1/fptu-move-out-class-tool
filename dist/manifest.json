@@ -20,5 +20,11 @@
     "32": "image.png",
     "48": "image.png",
     "128": "image.png"
+  },
+  "applications": {
+  "gecko": {
+    "id": "fptu-move-out-class-tool@example.com",
+    "strict_min_version": "109.0"
   }
+}
 }
